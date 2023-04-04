@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Context/AuthProvider";
 import { toast } from "react-hot-toast";
+import useToken from "../../../hooks/useToken";
 
 const SignUp = () => {
   const {
@@ -12,6 +13,13 @@ const SignUp = () => {
   } = useForm();
   const { createUser, updatedName, googleLogin } = useContext(AuthContext);
   const [singUpError, setSignUpError] = useState("");
+  const navigate = useNavigate();
+  const [createdUserEmail, setCreatedUserEmail] = useState("")
+  const [token] = useToken(createdUserEmail);
+
+  if(token) {
+    navigate("/")
+  }
 
   const handleSignUp = (data) => {
     console.log(data);
@@ -22,7 +30,9 @@ const SignUp = () => {
         // console.log(user);
         toast.success("User Created Successfully");
         updatedName({ displayName: data.name })
-          .then(() => {})
+          .then(() => {
+            saveUser(data.name, data.email);
+          })
           .catch((error) => {
             setSignUpError(error.message);
           });
@@ -32,17 +42,58 @@ const SignUp = () => {
       });
   };
 
+  const saveUser = (name, email) => {
+    const user = { name, email };
+    fetch(`http://localhost:5000/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCreatedUserEmail(email)
+      });
+  };
+
+  // token related code is here
+  // const getUserToken = (email) => {
+  //   fetch(`http://localhost:5000/jwt?email=${email}`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       // console.log(data);
+  //       if(data.accessToken) {
+  //         localStorage.setItem("accessToken", data.accessToken)
+  //         navigate("/")
+  //       }
+        
+  //     });
+  // };
+
   const handleGoogleLogin = () => {
     googleLogin()
-    .then(result => {
-      const user = result.user;
-      console.log(user);
-    })
-    .catch((error) => {
-      setSignUpError(error.message)
-      console.log(error.message);
-    })
-  }
+      .then((result) => {
+        const user = result.user;
+        const googleUser = {name:user.displayName, email:user.email};
+        fetch(`http://localhost:5000/users/${user?.email}`, {
+          method : "PUT",
+          headers : {
+            "Content-Type" : "application/json"
+          },
+          body : JSON.stringify(googleUser)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.acknowledged) {
+            setCreatedUserEmail(user?.email)
+          }
+        })
+      })
+      .catch((error) => {
+        setSignUpError(error.message);
+      });
+  };
 
   return (
     <div className="h-[600px] flex justify-center items-center ">
@@ -123,7 +174,9 @@ const SignUp = () => {
           </Link>
         </p>
         <div className="divider">OR</div>
-        <button onClick={handleGoogleLogin} className="btn btn-outline w-full">Continue With Google</button>
+        <button onClick={handleGoogleLogin} className="btn btn-outline w-full">
+          Continue With Google
+        </button>
       </div>
     </div>
   );

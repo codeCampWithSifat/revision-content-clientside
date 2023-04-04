@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Context/AuthProvider";
+import useToken from "../../../hooks/useToken";
 
 const Login = () => {
   const {
@@ -14,14 +15,18 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+  const [loginUserEmail, setLoginUserEmail] = useState("");
+  const [token] = useToken(loginUserEmail);
+
+  if (token) {
+    navigate(from, { replace: true });
+  }
 
   const handleLogin = (data) => {
     console.log(data);
     loginUser(data.email, data.password)
       .then((result) => {
-        // const user = result.user;
-        // console.log(user);
-        navigate(from, { replace: true });
+        setLoginUserEmail(data.email);
       })
       .catch((error) => {
         setLoginError(error.message);
@@ -31,9 +36,21 @@ const Login = () => {
   const hanldleGoogleLogin = () => {
     googleLogin()
       .then((result) => {
-        // const user = result.user;
-        // console.log(user);
-          navigate(from, { replace: true });
+        const user = result.user;
+        const googleUser = { name: user.displayName, email: user.email };
+        fetch(`http://localhost:5000/users/${user?.email}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(googleUser),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.acknowledged) {
+              setLoginUserEmail(user?.email);
+            }
+          });
       })
       .catch((error) => {
         console.log(error.message);

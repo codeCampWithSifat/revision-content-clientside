@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { AuthContext } from "../../../Context/AuthProvider";
 import { toast } from "react-hot-toast";
 
-const BookingModal = ({ treatment, setTreatment, selectedDate }) => {
+const BookingModal = ({ treatment, setTreatment, selectedDate, refetch }) => {
   const { name: serviceName, slots, price } = treatment;
   const date = format(selectedDate, "PP");
 
@@ -41,6 +41,9 @@ const BookingModal = ({ treatment, setTreatment, selectedDate }) => {
         if(data.acknowledged) {
           toast.success("Booked Your Seat Sucessfully")
           setTreatment(null);
+          refetch()
+        } else {
+          toast.error(`${data.message}`)
         }
       });
   };
@@ -81,7 +84,7 @@ const BookingModal = ({ treatment, setTreatment, selectedDate }) => {
               <input
                 type="text"
                 name="name"
-                value={user?.displayName}
+                defaultValue={user?.displayName}
                 className="input input-bordered input-info w-full max-w-xs my-3"
                 required
                 disabled
@@ -89,7 +92,7 @@ const BookingModal = ({ treatment, setTreatment, selectedDate }) => {
               <input
                 type="email"
                 name="email"
-                value={user?.email}
+                defaultValue={user?.email}
                 className="input input-bordered input-info w-full max-w-xs my-3"
                 required
                 disabled
