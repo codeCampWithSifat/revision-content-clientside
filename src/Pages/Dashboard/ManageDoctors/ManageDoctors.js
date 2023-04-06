@@ -1,14 +1,48 @@
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useState } from "react";
 import Loading from "../../Shared/Loading/Loading";
+import ConfirmationModal from "../../Shared/ConfirmationModal/ConfirmationModal";
+import { toast } from "react-hot-toast";
 
 const ManageDoctors = () => {
-  const { data: doctors = [], isLoading } = useQuery({
+  const [deletingDoctor, setDeletingDoctor] = useState(null);
+  const closeModal = () => {
+    setDeletingDoctor(null);
+  };
+
+  const handleDeleteDoctor = (doctor) => {
+    fetch(`http://localhost:5000/doctors/${doctor._id}`, {
+      method: "DELETE",
+      headers: {
+        authorization: `bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((deleteDoctor) => {
+        if (deleteDoctor.deletedCount > 0) {
+          toast.success(`Doctor ${doctor.name} Deleted Successfully`);
+          refetch();
+        }
+      });
+  };
+  const {
+    data: doctors = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["doctors"],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:5000/doctors`);
-      const data = await res.json();
-      return data;
+      try {
+        const res = await fetch(`http://localhost:5000/doctors`, {
+          headers: {
+            authorization: `bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
   if (isLoading) {
@@ -17,9 +51,9 @@ const ManageDoctors = () => {
   return (
     <div>
       <h2 className="text-indigo-700 font-bold text-xl my-6">
-        Total Number Of Doctors {doctors.length}
+        Total Number Of Doctors {doctors?.length}
       </h2>
-      <div className="overflow-x-auto">
+      <div className="">
         <table className="table w-full">
           {/* head */}
           <thead>
@@ -27,6 +61,7 @@ const ManageDoctors = () => {
               <th>SL Number</th>
               <th>Avater</th>
               <th>Name</th>
+              <th>Email</th>
               <th>Specialty</th>
               <th>Action</th>
             </tr>
@@ -37,18 +72,35 @@ const ManageDoctors = () => {
                 <th>{index + 1}</th>
                 <td>
                   {" "}
-                  <img className="w-12 rounded-xl" src={doctor.image} alt="" />
+                  <img className="w-10 rounded-xl" src={doctor.image} alt="" />
                 </td>
                 <td>{doctor.name}</td>
+                <td>{doctor.email}</td>
                 <td>{doctor.specialty}</td>
                 <td>
-                  <button className="btn btn-sm btn-error">Delete</button>
+                  <label
+                    onClick={() => setDeletingDoctor(doctor)}
+                    htmlFor="confirmation-modal"
+                    className="btn btn-sm btn-error text-white"
+                  >
+                    Delete
+                  </label>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {deletingDoctor && (
+        <ConfirmationModal
+          title={`Are You Sure Want To Delete`}
+          message={`Warning If You Delete ${deletingDoctor.name} You Can't Recover It`}
+          closeModal={closeModal}
+          handleDeleteDoctor={handleDeleteDoctor}
+          modalData={deletingDoctor}
+          successButtonName="Delete"
+        ></ConfirmationModal>
+      )}
     </div>
   );
 };

@@ -47,11 +47,12 @@ const AddDoctor = () => {
                 specialty : data.specialty,
                 image : imageData.data.url
             };
-
+            // save doctor information to the database
             fetch(`http://localhost:5000/doctors`,{
                 method : "POST",
                 headers : {
-                    "Content-Type" : "application/json"
+                    "Content-Type" : "application/json",
+                    authorization : `bearer ${localStorage.getItem("accessToken")}`
                 },
                 body : JSON.stringify(doctor)
             })
