@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useContext } from "react";
 import { AuthContext } from "../../../Context/AuthProvider";
 import Loading from "../../Shared/Loading/Loading";
+import { Link } from "react-router-dom";
 
 const MyAppointment = () => {
   const { user } = useContext(AuthContext);
@@ -39,20 +40,31 @@ const MyAppointment = () => {
               <th>Treatment</th>
               <th>Date</th>
               <th>Time</th>
+              <th>Price</th>
               <th>Payment Option</th>
             </tr>
           </thead>
           <tbody className="text-center">
-            {bookings.map((book, index) => (
-              <tr key={book._id}>
+            {bookings.map((booking, index) => (
+              <tr key={booking._id}>
                 <th>{index + 1}</th>
-                <td>{book.patientName}</td>
-                <td>{book.treatmentName}</td>
-                <td>{book.appointmentDate}</td>
-                <td>{book.slot}</td>
-                <td>
-                  <button className="btn btn-outline btn-sm">Pay</button>
-                </td>
+                <td>{booking.patientName}</td>
+                <td>{booking.treatmentName}</td>
+                <td>{booking.appointmentDate}</td>
+                <td>{booking.slot}</td>
+                <td>${booking.price}</td>
+                {booking.price && !booking.paid && (
+                  <td>
+                    <Link to={`/dashboard/payment/${booking._id}`}>
+                      <button className="btn btn-outline btn-sm">Pay</button>
+                    </Link>
+                  </td>
+                )}
+                {booking.price && booking.paid && (
+                  <td>
+                    <span className="text-primary">Payment Successfull</span>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
