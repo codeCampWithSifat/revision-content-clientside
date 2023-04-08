@@ -30,7 +30,7 @@ const MyAppointment = () => {
         <span className="font-bold">{user?.displayName}</span> Appointments
         Number : <span className="font-bold">{bookings.length}</span>
       </h3>
-      <div className="overflow-x-auto">
+      <div className="">
         <table className="table w-full">
           {/* head */}
           <thead className="text-center">
@@ -42,6 +42,7 @@ const MyAppointment = () => {
               <th>Time</th>
               <th>Price</th>
               <th>Payment Option</th>
+              {/* <th>Transaction Id</th> */}
             </tr>
           </thead>
           <tbody className="text-center">
@@ -61,9 +62,14 @@ const MyAppointment = () => {
                   </td>
                 )}
                 {booking.price && booking.paid && (
-                  <td>
-                    <span className="text-primary">Payment Successfull</span>
-                  </td>
+                  <>
+                    <td>
+                      <span className="text-primary">Payment Successfull</span>
+                    </td>
+                    {/* <td>
+                      <span className="text-primary">{booking.transactionId}</span>
+                    </td> */}
+                  </>
                 )}
               </tr>
             ))}

@@ -5,7 +5,7 @@ const CheckoutForm = ({ booking }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [cardError, setCardError] = useState("");
-  const { price, email, patientName } = booking;
+  const { price, email, patientName, _id , treatmentName} = booking;
   const [clientSecret, setClientSecret] = useState("");
   const [success, setSuccess] = useState("");
   const [transactionId, setTransactionId] = useState("");
@@ -67,9 +67,34 @@ const CheckoutForm = ({ booking }) => {
       return;
     }
     if (paymentIntent.status === "succeeded") {
-      setSuccess("Congrates Your Payment Successfull");
-      setTransactionId(paymentIntent.id);
-      
+      //   setSuccess("Congrates Your Payment Successfull");
+      //   setTransactionId(paymentIntent.id);
+
+      // save CheckoutInformation to the database
+      const payment = {
+        patientName,
+        treatmentName,
+        price,
+        transactionId : paymentIntent.id,
+        email,
+        bookingId : _id
+      };
+      fetch(`http://localhost:5000/payments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify(payment),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.insertedId) {
+            setSuccess("Congrates Your Payment Successfull");
+            setTransactionId(paymentIntent.id);
+          }
+        });
     }
     setProcessing(false);
   };
@@ -102,7 +127,7 @@ const CheckoutForm = ({ booking }) => {
       </form>
       {cardError && <p className="text-red-800 mt-4">{cardError}</p>}
       {success && (
-        <div>
+        <div className="mt-6">
           <p className="text-green-800">{success}</p>
           <p className="text-green-800">
             Your TransactionId :{" "}
