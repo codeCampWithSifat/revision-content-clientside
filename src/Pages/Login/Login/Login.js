@@ -38,7 +38,7 @@ const Login = () => {
       .then((result) => {
         const user = result.user;
         const googleUser = { name: user.displayName, email: user.email };
-        fetch(`http://localhost:5000/users/${user?.email}`, {
+        fetch(`https://revision-content-serverside.vercel.app/users/${user?.email}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
