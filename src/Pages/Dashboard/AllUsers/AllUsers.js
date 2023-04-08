@@ -11,7 +11,7 @@ const AllUsers = () => {
   } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const res = await fetch(`https://revision-content-serverside.vercel.app/users`);
+      const res = await fetch(`http://localhost:5000/users`);
       const data = await res.json();
       return data;
     },
@@ -21,7 +21,7 @@ const AllUsers = () => {
   }
 
   const handleAdmin = (id) => {
-    fetch(`https://revision-content-serverside.vercel.app/users/admin/${id}`, {
+    fetch(`http://localhost:5000/users/admin/${id}`, {
       method: "PUT",
       headers: {
         authorization: `bearer ${localStorage.getItem("accessToken")}`,
@@ -39,7 +39,7 @@ const AllUsers = () => {
 
   const handleDeleteAdmin = (id) => {
     if (window.confirm("Are You Sure You Want To Delete This Admin")) {
-      fetch(`https://revision-content-serverside.vercel.app/users/admin/${id}`, {
+      fetch(`http://localhost:5000/users/admin/${id}`, {
         method: "DELETE",
         headers : {
             authorization : `bearer ${localStorage.getItem("accessToken")}`

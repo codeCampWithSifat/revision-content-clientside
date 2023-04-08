@@ -29,7 +29,7 @@ const BookingModal = ({ treatment, setTreatment, selectedDate, refetch }) => {
       phone,
     };
 
-    fetch(`https://revision-content-serverside.vercel.app/bookings`, {
+    fetch(`http://localhost:5000/bookings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
