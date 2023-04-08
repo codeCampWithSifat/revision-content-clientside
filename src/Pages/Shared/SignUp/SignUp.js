@@ -44,7 +44,7 @@ const SignUp = () => {
 
   const saveUser = (name, email) => {
     const user = { name, email };
-    fetch(`http://localhost:5000/users`, {
+    fetch(`https://revision-content-serverside.vercel.app/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const SignUp = () => {
 
   // token related code is here
   // const getUserToken = (email) => {
-  //   fetch(`http://localhost:5000/jwt?email=${email}`)
+  //   fetch(`https://revision-content-serverside.vercel.app/jwt?email=${email}`)
   //     .then((res) => res.json())
   //     .then((data) => {
   //       // console.log(data);
@@ -76,7 +76,7 @@ const SignUp = () => {
       .then((result) => {
         const user = result.user;
         const googleUser = {name:user.displayName, email:user.email};
-        fetch(`http://localhost:5000/users/${user?.email}`, {
+        fetch(`https://revision-content-serverside.vercel.app/users/${user?.email}`, {
           method : "PUT",
           headers : {
             "Content-Type" : "application/json"

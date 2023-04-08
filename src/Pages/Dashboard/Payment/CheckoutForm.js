@@ -12,7 +12,7 @@ const CheckoutForm = ({ booking }) => {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/create-payment-intent`, {
+    fetch(`https://revision-content-serverside.vercel.app/create-payment-intent`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const CheckoutForm = ({ booking }) => {
         email,
         bookingId : _id
       };
-      fetch(`http://localhost:5000/payments`, {
+      fetch(`https://revision-content-serverside.vercel.app/payments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
